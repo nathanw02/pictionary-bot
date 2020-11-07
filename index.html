@@ -1,0 +1,31 @@
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.1.9/p5.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
+
+<script>
+    function setup(){
+        const cv = createCanvas(500, 500);
+        cv.position = (0, 0);
+        cv.background(255);
+        stroke(0);
+        rect(0,0,500,500);
+    }
+
+    function mouseDragged(){
+        stroke(0);
+        line(mouseX, mouseY, pmouseX, pmouseY);
+        sendData(mouseX, mouseY, pmouseX, pmouseY);
+    }
+
+    var socket  = io.connect();
+
+    function sendData(x, y, pX, pY){
+        const data = {
+            x: x,
+            y: y,
+            px: pX,
+            py: pY,
+            link: window.location.href
+        };
+        socket.emit('mouse', data);
+    }
+</script>
