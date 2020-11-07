@@ -7,6 +7,8 @@ const io = require('socket.io')(server);
 app.use(bodyParser.json());
 
 var games = new Map();
+var links = [...games.keys()];
+games.set('/a', []);
 
 app.post('/add', (req, res) => {
     let link = req.body.link;
@@ -14,12 +16,12 @@ app.post('/add', (req, res) => {
     res.send(link);
 });
 
-app.get([... games.keys()], (req, res) => {
+app.get(links, (req, res) => {
     res.sendFile(__dirname + '/index.html');
 });
 
 app.post('/update', (req, res) => {
-    let link = req.body.link;
+    let link = `/${req.body.link}`;
     if(games.get(link).length == 0){
         res.send('Empty');
     }else{
@@ -42,5 +44,9 @@ io.sockets.on('connection', (socket) => {
         }
     }); 
 });
+
+setInterval(()=>{
+    links = [...games.keys()];
+}, 10);
 
 server.listen(3000);
