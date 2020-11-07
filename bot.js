@@ -14,10 +14,15 @@ client.on('ready', () => {
 });
 
 client.on('message', async msg => {
-    if(games.hasOwnProperty(msg.channel.id)){
-        let game = games[msg.channel.id];
-        if(!game.players.includes(msg.author.id)) return;
+    if(games.has(msg.channel.id)){
+        let game = games.get(msg.channel.id);
+        let players = [];
+        game.players.forEach(player => {
+            players.push(player.id);
+        });
+        if(!players.includes(msg.author.id)) return;
         if(msg.content == game.word){
+            game.addScore(msg.author.id);
             game.endRound();
         } 
     }
@@ -30,6 +35,14 @@ client.on('message', async msg => {
     if(command === 'start'){
         const startMsg = await msg.channel.send('React with a ☑ to join the game then react with 🖌 to start the game');
         startMsg.react('☑').then(()=> startMsg.react('🖌'));
+    }
+
+    if(command === 'end'){
+        if(games.has(msg.channel.id)){
+            games.get(msg.channel.id);
+            game.end();
+            return games.delete(msg.channel.id);
+        }
     }
 
 });

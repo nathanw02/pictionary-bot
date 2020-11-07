@@ -307,18 +307,26 @@ module.exports = class Game {
         this.channel;
         this.word;
         this.roundNumber = 1;
-        this.roundEnd = false;
+        this.roundEnd;
         this.players = [];
         this.started = false;
         this.code;
-        this.imgDate;
         this.prevMsg;
         this.lines = {};
         this.placeholder = '';
     }
 
     addPlayer(player){
-        this.players.push(player);
+        this.players.push({
+            id: player,
+            score: 0
+        });
+    }
+
+    addScore(player){
+        this.players.forEach(p => {
+            if(p.id == player) p.score++;
+        });
     }
 
     start(msg){
@@ -329,11 +337,12 @@ module.exports = class Game {
     }
 
     round(){
+        this.roundEnd = false;
         this.word = words[Math.floor(Math.random()*words.length)];
         
-        let player = this.client.users.cache.get(this.players[0]);
+        let player = this.client.users.cache.get(this.players[0].id);
         this.code = randomstring.generate(12);
-        player.send(`http://localhost:3000/${this.code}`);
+        player.send(`Use this link to draw: http://localhost:3000/${this.code}\nWord: **${this.word}**`);
         this.addLink(async (err) => {
             if(err) return console.log(err);
             for(let i = 0; i < this.word.length; i++){
@@ -349,11 +358,14 @@ module.exports = class Game {
             
             this.prevMsg = await this.channel.send({embed});
             this.updateImage();
+            setTimeout(()=>{
+                if(this.roundEnd == false){
+                    
+                }
+            }, 90000);
             
         });
 
-
-        //this.players.push(this.players.shift())
     }
 
     addLink(cb){
@@ -408,5 +420,41 @@ module.exports = class Game {
                 }
             }
        });
+    }
+
+    async endRound(){
+        this.roundEnd = true;
+        let embed = new Discord.MessageEmbed()
+            .setTitle(`Scoreboard | Round ${this.roundNumber}`)
+            .setColor('#00FF00')
+            .setDescription(`Round ended. The word was ${this.word}`)
+            
+        this.players.forEach(player => {
+            embed.addField('\u200b', `${this.client.users.cache.get(player.id).username}: ${player.score}`);
+        });
+        await this.prevMsg.delete();
+        this.prevMsg = await this.channel.send({embed});
+        this.players.push(this.players.shift());
+        this.roundNumber++;
+        if(this.roundNumber > this.players.length){
+            this.endGame();
+        }else{
+            this.lines = {};
+            this.round();
+        }
+        
+    }
+
+    async endGame(){
+        this.roundEnd = true;
+        let embed = new Discord.MessageEmbed()
+            .setTitle(`Final Scoreboard`)
+            .setColor('#00FF00')
+            
+        this.players.forEach(player => {
+            embed.addField('\u200b', `${this.client.users.cache.get(player.id).username}: ${player.score}`);
+        });
+        await this.prevMsg.delete();
+        this.prevMsg = await this.channel.send({embed});
     }
 }
