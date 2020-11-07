@@ -10,11 +10,11 @@ var games = new Map();
 
 app.post('/add', (req, res) => {
     let link = req.body.link;
-    games.set(link, []);
+    games.set(`/${link}`, []);
     res.send(link);
 });
 
-app.get(`/${[... games.keys()]}`, (req, res) => {
+app.get([... games.keys()], (req, res) => {
     res.sendFile(__dirname + '/index.html');
 });
 
@@ -42,6 +42,5 @@ io.sockets.on('connection', (socket) => {
         }
     }); 
 });
-
 
 server.listen(3000);
