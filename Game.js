@@ -396,13 +396,15 @@ module.exports = class Game {
                     const ctx = canvas.getContext('2d');
                     const background = await Canvas.loadImage('./blank.png');
                     ctx.drawImage(background, 0, 0, 500, 500);
+                    ctx.lineCap = "round";
                     this.lines.forEach(line => {
-                        ctx.strokeStyle = 'rgb(0,0,0)'
+                        ctx.lineWidth = line.strokeweight;
                         ctx.beginPath();
                         ctx.lineTo(line.x, line.y);
                         ctx.lineTo(line.px, line.py);
                         ctx.stroke();
                     });
+                    
                     const attachment = new Discord.MessageAttachment(canvas.toBuffer(), `${this.code}.png`);
                     let embed = new Discord.MessageEmbed()
                         .setTitle(`Round ${this.roundNumber}`)

@@ -36,7 +36,8 @@ io.sockets.on('connection', (socket) => {
                 x: data.x,
                 y: data.y,
                 px: data.px,
-                py: data.py
+                py: data.py,
+                strokeweight: data.strokeweight
             });
         }
     }); 
