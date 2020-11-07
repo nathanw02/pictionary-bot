@@ -32,8 +32,8 @@ app.post('/update', (req, res) => {
 io.sockets.on('connection', (socket) => {
     socket.on('mouse', (data) => {
         let link = data.link.split('https://')[1].split('/')[1];
-        if(games.has(link)){
-            let game = games.get(link);
+        if(games.has(`/${link}`)){
+            let game = games.get(`/${link}`);
             game.push({
                 x: data.x,
                 y: data.y,

@@ -390,7 +390,6 @@ module.exports = class Game {
                     this.updateImage();
                 }, 2000);
             }else{
-                console.log(res.body);
                 if(JSON.stringify(res.body) != JSON.stringify(this.lines)){
                     this.lines = res.body;
                     const canvas = Canvas.createCanvas(500,500);
