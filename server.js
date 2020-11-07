@@ -39,7 +39,8 @@ io.sockets.on('connection', (socket) => {
                 y: data.y,
                 px: data.px,
                 py: data.py,
-                strokeweight: data.strokeweight
+                strokeweight: data.strokeweight,
+                color: data.color
             });
         }
     }); 

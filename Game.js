@@ -399,6 +399,7 @@ module.exports = class Game {
                     ctx.lineCap = "round";
                     this.lines.forEach(line => {
                         ctx.lineWidth = line.strokeweight;
+                        ctx.strokeStyle = line.color;
                         ctx.beginPath();
                         ctx.lineTo(line.x, line.y);
                         ctx.lineTo(line.px, line.py);

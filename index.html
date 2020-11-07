@@ -1,9 +1,11 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.1.9/p5.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
 
-<h3 style="position: relative; top: 560px; left: 50px">Stroke weight</h3>
+<h3 style="position: fixed; top: 570px; left: 200px">Stroke weight</h3>
+<h3 style="position: fixed; top: 670px; left: 225px">Color</h3>
 <script>
     var slider;
+    var colorPicker;
     function setup(){
         const cv = createCanvas(500, 500);
         cv.position = (0, 0);
@@ -11,12 +13,14 @@
         stroke(0);
         rect(0,0,500,500);
         slider = createSlider(1, 25, 10, 1);
-        slider.position(20, height+50);
+        slider.position(150, height+60);
         slider.style('width', '200px');
+        colorPicker = createColorPicker('#000000');
+        colorPicker.position(225,height+150);
     }
 
     function mouseDragged(){
-        stroke(0);
+        stroke(colorPicker.value());
         strokeWeight(slider.value());
         line(mouseX, mouseY, pmouseX, pmouseY);
         sendData(mouseX, mouseY, pmouseX, pmouseY);
@@ -31,6 +35,7 @@
             px: pX,
             py: pY,
             strokeweight: slider.value(),
+            color: colorPicker.value(),
             link: window.location.href
         };
         socket.emit('mouse', data);
