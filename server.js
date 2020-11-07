@@ -14,7 +14,7 @@ app.post('/add', (req, res) => {
     res.send(link);
 });
 
-app.get([... games.keys()], (req, res) => {
+app.get(`/${[... games.keys()]}`, (req, res) => {
     res.sendFile(__dirname + '/index.html');
 });
 
@@ -29,7 +29,7 @@ app.post('/update', (req, res) => {
 
 io.sockets.on('connection', (socket) => {
     socket.on('mouse', (data) => {
-        let link = data.link.split('http://')[1].split('/')[1];
+        let link = data.link.split('https://')[1].split('/')[1];
         if(games.has(link)){
             let game = games.get(link);
             game.push({

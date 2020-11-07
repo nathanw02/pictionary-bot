@@ -13,7 +13,15 @@ client.on('ready', () => {
     console.log(`Logged in as ${client.user.tag}!`);
 });
 
+client.on('guildCreate', guild => {
+    guild.channels.create('pictionary', {type: 'text'}).then(c => {
+        c.send('How to use:\n- Make sure to have everyone in the server type something in chat so I can cache the users list before starting a game (only for first time game after adding the bot)\n- You should also mute this channel channel as there will be a lot of spam\n- Do not change this channel name\n`!start` : creates a pictionary game (react to messages to join/start game)\n`!end` : ends game');
+    });
+});
+
 client.on('message', async msg => {
+    if(msg.channel.id != client.channels.cache.find(ch => ch.name === 'pictionary').id) return;
+
     if(games.has(msg.channel.id)){
         let game = games.get(msg.channel.id);
         let players = [];

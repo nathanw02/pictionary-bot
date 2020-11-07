@@ -342,7 +342,7 @@ module.exports = class Game {
         
         let player = this.client.users.cache.get(this.players[0].id);
         this.code = randomstring.generate(12);
-        player.send(`Use this link to draw: http://localhost:3000/${this.code}\nWord: **${this.word}**`);
+        player.send(`Use this link to draw: https://pictionarybot.xyz/${this.code}\nWord: **${this.word}**`);
         this.addLink(async (err) => {
             if(err) return console.log(err);
             for(let i = 0; i < this.word.length; i++){
@@ -370,7 +370,7 @@ module.exports = class Game {
 
     addLink(cb){
         request.post({
-            url: `http://localhost:3000/add`,
+            url: `https://pictionarybot.xyz/add`,
             json: {'link': this.code}
         }, (err, res) => {
             if(err) return console.log(err);
@@ -381,7 +381,7 @@ module.exports = class Game {
     updateImage(){
         if(this.roundEnd == true) return;
         request.post({
-            url: 'http://localhost:3000/update',
+            url: 'https://pictionarybot.xyz/update',
             json: {'link': this.code}
         }, async (err, res) => {
             if(err) return console.log(err);
