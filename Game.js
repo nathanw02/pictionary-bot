@@ -138,7 +138,7 @@ module.exports = class Game {
         request.post({
             url: 'https://pictionarybot.xyz/remove',
             json: {link: this.link}
-        }, (err) => {
+        }, async (err) => {
             if(err) return console.log(err);
             this.roundEnd = true;
             let embed = new Discord.MessageEmbed()
