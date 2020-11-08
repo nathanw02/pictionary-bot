@@ -16,6 +16,11 @@ app.post('/add', (req, res) => {
     res.send(link);
 });
 
+app.post('/remove', (req, res) => {
+    let link = `/${req.body.link}`;
+    games.remove(link);
+})
+
 app.get(links, (req, res) => {
     res.sendFile(__dirname + '/index.html');
 });

@@ -135,26 +135,31 @@ module.exports = class Game {
     }
 
     async endRound(){
-        this.roundEnd = true;
-        let embed = new Discord.MessageEmbed()
-            .setTitle(`Scoreboard | Round ${this.roundNumber}`)
-            .setColor('#00FF00')
-            .setDescription(`Round ended. The word was ${this.word}`)
-            
-        this.players.forEach(player => {
-            embed.addField('\u200b', `${this.client.users.cache.get(player.id).username}: ${player.score}`);
-        });
-        await this.prevMsg.delete();
-        this.prevMsg = await this.channel.send({embed});
-        this.players.push(this.players.shift());
-        this.roundNumber++;
-        if(this.roundNumber > this.players.length){
-            this.endGame();
-        }else{
-            this.lines = {};
-            this.round();
-        }
-        
+        request.post({
+            url: 'https://pictionarybot.xyz/remove',
+            json: {link: this.link}
+        }, (err) => {
+            if(err) return console.log(err);
+            this.roundEnd = true;
+            let embed = new Discord.MessageEmbed()
+                .setTitle(`Scoreboard | Round ${this.roundNumber}`)
+                .setColor('#00FF00')
+                .setDescription(`Round ended. The word was ${this.word}`)
+                
+            this.players.forEach(player => {
+                embed.addField('\u200b', `${this.client.users.cache.get(player.id).username}: ${player.score}`);
+            });
+            await this.prevMsg.delete();
+            this.prevMsg = await this.channel.send({embed});
+            this.players.push(this.players.shift());
+            this.roundNumber++;
+            if(this.roundNumber > this.players.length){
+                this.endGame();
+            }else{
+                this.lines = {};
+                this.round();
+            }
+        });        
     }
 
     async endGame(){
