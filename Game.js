@@ -171,7 +171,7 @@ module.exports = class Game {
         this.players.forEach(player => {
             embed.addField('\u200b', `${this.client.users.cache.get(player.id).username}: ${player.score}`);
         });
-        await this.prevMsg.delete();
-        this.prevMsg = await this.channel.send({embed});
+        
+        await this.channel.send({embed});
     }
 }
