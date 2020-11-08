@@ -47,7 +47,7 @@ client.on('message', async msg => {
 
     if(command === 'end'){
         if(games.has(msg.channel.id)){
-            games.get(msg.channel.id);
+            let game = games.get(msg.channel.id);
             game.end();
             return games.delete(msg.channel.id);
         }
