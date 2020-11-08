@@ -19,6 +19,7 @@ app.post('/add', (req, res) => {
 app.post('/remove', (req, res) => {
     let link = `/${req.body.link}`;
     games.delete(link);
+    res.send(link);
 })
 
 app.get(links, (req, res) => {
