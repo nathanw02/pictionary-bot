@@ -19,6 +19,9 @@ client.on('ready', () => {
             channels.push(channel.id);
         }
     }
+    process.on('unhandledRejection', () => {
+        return;
+    });
 });
 
 client.on('guildCreate', guild => {
@@ -57,7 +60,7 @@ client.on('message', async msg => {
     if(command === 'end'){
         if(games.has(msg.channel.id)){
             let game = games.get(msg.channel.id);
-            game.end();
+            game.endGame();
             return games.delete(msg.channel.id);
         }
     }
@@ -76,10 +79,12 @@ client.on('messageReactionAdd', (reaction, user) => {
         if(!games.has(id)){
             let game = new Game(id, client);
             games.set(id, game);
-            if(!game.players.includes(u)) game.addPlayer(u);
+            if(!Object.keys(game.players).includes(u)) game.addPlayer(u);
         }else{
             let game = games.get(id);
-            if(!game.players.includes(u)) game.addPlayer(u);
+            if(game.started == false){
+                if(!Object.keys(game.players).includes(u)) game.addPlayer(u);
+            }
         }
     }
     if(emote.name == '🖌'){
@@ -89,6 +94,12 @@ client.on('messageReactionAdd', (reaction, user) => {
             let game = games.get(id);
             if(game.started == false){
                 game.start(msg);
+                let checkStatus = setInterval(()=>{
+                    if(game.endGame == true){
+                        games.remove(id);
+                        clearInterval(checkStatus);
+                    }
+                }, 5000);
                 return msg.edit('Game starting...');
             }
         }

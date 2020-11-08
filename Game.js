@@ -19,6 +19,7 @@ module.exports = class Game {
         this.prevMsg;
         this.lines = {};
         this.placeholder = '';
+        this.gameEnd = false;
     }
 
     addPlayer(player){
@@ -162,16 +163,23 @@ module.exports = class Game {
         });        
     }
 
-    async endGame(){
+    endGame(){
         this.roundEnd = true;
-        let embed = new Discord.MessageEmbed()
+        this.gameEnd = true;
+        request.post({
+            url: 'https://pictionarybot.xyz/remove',
+            json: {link: this.link}
+        }, async (err) => {
+            if(err) console.log(err);
+            let embed = new Discord.MessageEmbed()
             .setTitle(`Final Scoreboard`)
             .setColor('#00FF00')
             
-        this.players.forEach(player => {
-            embed.addField('\u200b', `${this.client.users.cache.get(player.id).username}: ${player.score}`);
+            this.players.forEach(player => {
+                embed.addField('\u200b', `${this.client.users.cache.get(player.id).username}: ${player.score}`);
+            });
+            
+            await this.channel.send({embed});
         });
-        
-        await this.channel.send({embed});
     }
 }
