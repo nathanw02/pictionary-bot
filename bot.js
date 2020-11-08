@@ -13,6 +13,7 @@ var channels = [];
 
 client.on('ready', () => {
     console.log(`Logged in as ${client.user.tag}!`);
+    console.log(`Currently in ${client.guilds.cache.size} servers`);
     let c = client.channels.cache.array();
     for(channel of c){
         if(channel.name === 'pictionary'){
