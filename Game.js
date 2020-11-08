@@ -52,7 +52,11 @@ module.exports = class Game {
         this.addLink(async (err) => {
             if(err) return console.log(err);
             for(let i = 0; i < this.word.length; i++){
-                this.placeholder+='- ';
+                if(this.word.charAt(i) == ' '){
+                    this.placeholder+=' ';
+                }else{
+                    this.placeholder+='- ';
+                }
             }
 
             let embed = new Discord.MessageEmbed()
@@ -158,6 +162,7 @@ module.exports = class Game {
                 this.endGame();
             }else{
                 this.lines = {};
+                this.placeholder = '';
                 this.round();
             }
         });        

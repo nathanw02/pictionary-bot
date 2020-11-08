@@ -42,8 +42,8 @@ client.on('message', async msg => {
         });
         if(!players.includes(msg.author.id)) return;
         if(msg.content == game.word){
-            game.addScore(msg.author.id);
             game.endRound();
+            game.addScore(msg.author.id);
         } 
     }
 
@@ -95,8 +95,8 @@ client.on('messageReactionAdd', (reaction, user) => {
             if(game.started == false){
                 game.start(msg);
                 let checkStatus = setInterval(()=>{
-                    if(game.endGame == true){
-                        games.remove(id);
+                    if(game.gameEnd == true){
+                        games.delete(id);
                         clearInterval(checkStatus);
                     }
                 }, 5000);
