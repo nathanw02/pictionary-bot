@@ -33,6 +33,7 @@ client.on('guildCreate', guild => {
 });
 
 client.on('message', async msg => {
+    if(msg.author.bot) return;
     if(!channels.includes(msg.channel.id)) return;
     if(games.has(msg.channel.id)){
         let game = games.get(msg.channel.id);
@@ -47,7 +48,7 @@ client.on('message', async msg => {
         } 
     }
 
-    if (!msg.content.startsWith(prefix) || msg.author.bot) return;
+    if (!msg.content.startsWith(prefix)) return;
 
     const args = msg.content.slice(prefix.length).split(' ');
     const command = args.shift().toLowerCase();
