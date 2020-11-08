@@ -14,6 +14,7 @@ module.exports = class Game {
         this.roundNumber = 1;
         this.roundEnd;
         this.players = [];
+        this.currentPlayer;
         this.started = false;
         this.code;
         this.prevMsg;
@@ -24,14 +25,22 @@ module.exports = class Game {
 
     addPlayer(player){
         this.players.push({
-            id: player,
+            user: player,
             score: 0
         });
     }
 
+    getPlayers(){
+        let playerList = [];
+        this.players.forEach(p => {
+            playerList.push(p.user.id);
+        });
+        return playerList;
+    }
+
     addScore(player){
         this.players.forEach(p => {
-            if(p.id == player) p.score++;
+            if(p.user.id == player) p.score++;
         });
     }
 
@@ -45,10 +54,12 @@ module.exports = class Game {
     round(){
         this.roundEnd = false;
         this.word = words[Math.floor(Math.random()*words.length)];
-        
-        let player = this.client.users.cache.get(this.players[0].id);
+    
         this.code = randomstring.generate(12);
-        player.send(`Use this link to draw: https://pictionarybot.xyz/${this.code}\nWord: **${this.word}**`);
+
+        this.currentPlayer = this.players[0].user;
+        this.currentPlayer.send(`Use this link to draw: https://pictionarybot.xyz/${this.code}\nWord: **${this.word}**`);
+
         this.addLink(async (err) => {
             if(err) return console.log(err);
             for(let i = 0; i < this.word.length; i++){
@@ -61,13 +72,15 @@ module.exports = class Game {
 
             let embed = new Discord.MessageEmbed()
                 .setTitle(`Round ${this.roundNumber}`)
-                .setColor('#00FF00')
+                .setColor(`#${Math.floor(Math.random()*16777215).toString(16)}`)
                 .setDescription(`Word: ${this.placeholder}`)
+                .addField('\u200b', `${this.currentPlayer.displayName} is currently drawing`)
                 .attachFiles(`./blank.png`)
                 .setImage(`attachment://blank.png`)
             
             this.prevMsg = await this.channel.send({embed});
             this.updateImage();
+
             setTimeout( async ()=>{
                 if(this.roundEnd == false){
                     await this.prevMsg.delete();
@@ -123,23 +136,27 @@ module.exports = class Game {
                     const attachment = new Discord.MessageAttachment(canvas.toBuffer(), `${this.code}.png`);
                     let embed = new Discord.MessageEmbed()
                         .setTitle(`Round ${this.roundNumber}`)
-                        .setColor('#00FF00')
+                        .setColor(`#${Math.floor(Math.random()*16777215).toString(16)}`)
                         .setDescription(`Word: ${this.placeholder}`)
+                        .addField('\u200b', `${this.currentPlayer.displayName} is currently drawing`)
                         .attachFiles(attachment)
                         .setImage(`attachment://${this.code}.png`)
+
                     await this.prevMsg.delete();
                     this.prevMsg = await this.channel.send({embed});
-                    return this.updateImage();
+                    setTimeout(()=>{
+                        return this.updateImage();
+                    }, 2000);
                 }else{
                     setTimeout(()=>{
-                        this.updateImage();
+                        return this.updateImage();
                     }, 2000);
                 }
             }
        });
     }
 
-    async endRound(){
+    endRound(){
         request.post({
             url: 'https://pictionarybot.xyz/remove',
             json: {link: this.link}
@@ -147,23 +164,28 @@ module.exports = class Game {
             if(err) return console.log(err);
             this.roundEnd = true;
             let embed = new Discord.MessageEmbed()
-                .setTitle(`Scoreboard | Round ${this.roundNumber}`)
-                .setColor('#00FF00')
-                .setDescription(`Round ended. The word was ${this.word}`)
+                .setTitle(`Round ${this.roundNumber} ended. The word was ${this.word}`)
+                .setColor(`#${Math.floor(Math.random()*16777215).toString(16)}`)
+                .setDescription(`Scoreboard:`)
                 
             this.players.forEach(player => {
-                embed.addField('\u200b', `${this.client.users.cache.get(player.id).username}: ${player.score}`);
+                embed.addField('\u200b', `${player.user.displayName}: ${player.score}`);
             });
+            
             await this.prevMsg.delete();
             this.prevMsg = await this.channel.send({embed});
+            
             this.players.push(this.players.shift());
             this.roundNumber++;
+
             if(this.roundNumber > this.players.length){
                 this.endGame();
             }else{
                 this.lines = {};
                 this.placeholder = '';
-                this.round();
+                setTimeout(()=>{
+                    this.round();
+                }, 3000);
             }
         });        
     }
@@ -178,10 +200,10 @@ module.exports = class Game {
             if(err) console.log(err);
             let embed = new Discord.MessageEmbed()
             .setTitle(`Final Scoreboard`)
-            .setColor('#00FF00')
+            .setColor(`#${Math.floor(Math.random()*16777215).toString(16)}`)
             
             this.players.forEach(player => {
-                embed.addField('\u200b', `${this.client.users.cache.get(player.id).username}: ${player.score}`);
+                embed.addField('\u200b', `${player.user.displayName}: ${player.score}`);
             });
             
             await this.channel.send({embed});

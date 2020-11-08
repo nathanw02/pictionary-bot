@@ -20,14 +20,16 @@ client.on('ready', () => {
             channels.push(channel.id);
         }
     }
+
     process.on('unhandledRejection', () => {
         return;
     });
+
 });
 
 client.on('guildCreate', guild => {
     guild.channels.create('pictionary', {type: 'text'}).then(c => {
-        c.send('How to use:\n- Make sure to have everyone in the server type something in chat so I can cache the users list before starting a game (only for first time game after adding the bot)\n- You should also mute this channel channel as there will be a lot of spam\n- Do not change this channel name\n`!start` : creates a pictionary game (react to messages to join/start game)\n`!end` : ends game');
+        c.send('How to use:\n- You should mute this channel channel as there will be a lot of spam\n- Do not change this channel name\n`!start` : creates a pictionary game (type `!join` to join the game)\n`!end` : ends game');
         client.channels.fetch(c.id);
         channels.push(c.id);
     });
@@ -38,33 +40,64 @@ client.on('message', async msg => {
     if(!channels.includes(msg.channel.id)) return;
     if(games.has(msg.channel.id)){
         let game = games.get(msg.channel.id);
-        let players = [];
-        game.players.forEach(player => {
-            players.push(player.id);
-        });
-        if(!players.includes(msg.author.id)) return;
-        if(msg.content == game.word){
-            game.endRound();
-            game.addScore(msg.author.id);
-        } 
+        if(game.started == true){
+
+            if(!game.getPlayers().includes(msg.author.id)) return;
+    
+            if(msg.content == game.word){
+                game.endRound();
+                game.addScore(msg.author.id);
+            }    
+        }
     }
 
     if (!msg.content.startsWith(prefix)) return;
 
     const args = msg.content.slice(prefix.length).split(' ');
     const command = args.shift().toLowerCase();
+    const id = msg.channel.id;
+    const u = msg.member;
 
     if(command === 'start'){
-        const startMsg = await msg.channel.send('React with a ☑ to join the game then react with 🖌 to start the game');
-        startMsg.react('☑').then(()=> startMsg.react('🖌'));
+        if(!games.has(id)){
+            let game = new Game(id, client);
+            games.set(id, game);
+            const startMsg = await msg.channel.send('Type `!join` to join the game, and react with 🖌 to start the game.');
+            startMsg.react('🖌');
+        }else{
+            return msg.channel.send('Game already created. Type `!join` to join');
+        }        
+    }
+    
+    if(command === 'join'){
+        if(!games.has(id)){
+            return msg.channel.send('No game has been started yet. Type `!start` to create a game.');
+        }else{
+            let game = games.get(id);
+            if(game.started == true){
+                return msg.channel.send('Game already started.');
+            }else{
+                if(!game.getPlayers().includes(u.id)){
+                    game.addPlayer(u);
+                    msg.channel.send(`${u.displayName} joined the game.`);
+                }
+            }
+        } 
     }
 
     if(command === 'end'){
-        if(games.has(msg.channel.id)){
-            let game = games.get(msg.channel.id);
+        if(games.has(id)){
+            let game = games.get(id);
+            
+            if(!game.getPlayers().includes(msg.author.id)) return;
+
             game.endGame();
-            return games.delete(msg.channel.id);
+            return games.delete(id);
         }
+    }
+
+    if(command === 'help'){
+        msg.channel.send('How to use:\n- You should mute this channel channel as there will be a lot of spam\n- Do not change this channel name\n`!start` : creates a pictionary game (type `!join` to join the game)\n`!end` : ends game');
     }
 
 });
@@ -77,18 +110,6 @@ client.on('messageReactionAdd', (reaction, user) => {
     
     if(u == '771953142777511936') return;
 
-    if(emote.name == '☑'){
-        if(!games.has(id)){
-            let game = new Game(id, client);
-            games.set(id, game);
-            if(!Object.keys(game.players).includes(u)) game.addPlayer(u);
-        }else{
-            let game = games.get(id);
-            if(game.started == false){
-                if(!Object.keys(game.players).includes(u)) game.addPlayer(u);
-            }
-        }
-    }
     if(emote.name == '🖌'){
         if(!games.has(id)){
             return msg.edit('No players');
